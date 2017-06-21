@@ -319,7 +319,6 @@ class PlanningGraph():
                         if (anode_pre == snode):
                             anode.parents.add(snode)
 
-
     def add_literal_level(self, level):
         """ add an S (literal) level to the Planning Graph
 
@@ -343,7 +342,6 @@ class PlanningGraph():
                 anode.children.add(eff)
                 #Adding previous level action as parent for this literal
                 eff.parents.add(anode)
-
 
     def update_a_mutex(self, nodeset):
         """ Determine and update sibling mutual exclusion for A-level nodes
@@ -445,7 +443,11 @@ class PlanningGraph():
         :return: bool
         """
 
-        # TODO test for Competing Needs between nodes
+        for s in node_a1.parents:
+            for sm in node_a2.parents:
+                if s.is_mutex(sm):
+                    return True
+
         return False
 
     def update_s_mutex(self, nodeset: set):
