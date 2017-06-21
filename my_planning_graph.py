@@ -303,13 +303,6 @@ class PlanningGraph():
         :return:
             adds A nodes to the current level in self.a_levels[level]
         """
-        # TODO add action A level to the planning graph as described in the Russell-Norvig text
-        # 1. determine what actions to add and create those PgNode_a objects
-        # 2. connect the nodes to the previous S literal level
-        # for example, the A0 level will iterate through all possible actions for the problem and add a PgNode_a to a_levels[0]
-        #   set iff all prerequisite literals for the action hold in S0.  This can be accomplished by testing
-        #   to see if a proposed PgNode_a has prenodes that are a subset of the previous S level.  Once an
-        #   action node is added, it MUST be connected to the S node instances in the appropriate s_level set.
 
         # Adding a new level in a levels
         self.a_levels.append(set())
@@ -318,10 +311,11 @@ class PlanningGraph():
         for a in self.all_actions:
             anode = PgNode_a(a)
             if anode.prenodes.issubset(self.s_levels[level]):
-                #preconditions matches so its time to add this action node on this level
+                # Preconditions matches so its time to add this action node on this level
                 self.a_levels[level].add(anode)
                 for anode_pre in anode.prenodes:
                     for snode in self.s_levels[level]:
+                        # Confirm prenode match and add as parent
                         if (anode_pre == snode):
                             anode.parents.add(snode)
 
@@ -335,14 +329,6 @@ class PlanningGraph():
         :return:
             adds S nodes to the current level in self.s_levels[level]
         """
-        # TODO add literal S level to the planning graph as described in the Russell-Norvig text
-        # 1. determine what literals to add
-        # 2. connect the nodes
-        # for example, every A node in the previous level has a list of S nodes in effnodes that represent the effect
-        #   produced by the action.  These literals will all be part of the new S level.  Since we are working with sets, they
-        #   may be "added" to the set without fear of duplication.  However, it is important to then correctly create and connect
-        #   all of the new S nodes as children of all the A nodes that could produce them, and likewise add the A nodes to the
-        #   parent sets of the S nodes
 
         # Adding a new level in s levels
         self.s_levels.append(set())
@@ -353,7 +339,9 @@ class PlanningGraph():
             for eff in anode_eff:
                 #Adding each effect on this level
                 self.s_levels[level].add(eff)
+                #Adding this literal as child for previous level action
                 anode.children.add(eff)
+                #Adding previous level action as parent for this literal
                 eff.parents.add(anode)
 
 
@@ -413,7 +401,12 @@ class PlanningGraph():
         :param node_a2: PgNode_a
         :return: bool
         """
-        # TODO test for Inconsistent Effects between nodes
+
+        if set(node_a2.action.effect_rem)&set(node_a1.action.effect_add):
+            return True
+        if set(node_a2.action.effect_add)&set(node_a1.action.effect_rem):
+            return True
+
         return False
 
     def interference_mutex(self, node_a1: PgNode_a, node_a2: PgNode_a) -> bool:
