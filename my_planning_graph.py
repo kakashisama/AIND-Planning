@@ -311,7 +311,7 @@ class PlanningGraph():
         for a in self.all_actions:
             anode = PgNode_a(a)
             if anode.prenodes.issubset(self.s_levels[level]):
-                # Preconditions matches so its time to add this action node on this level
+                # All preconditions match so its time to add this action node on this level
                 self.a_levels[level].add(anode)
                 for anode_pre in anode.prenodes:
                     for snode in self.s_levels[level]:
@@ -525,7 +525,23 @@ class PlanningGraph():
 
         :return: int
         """
+        # Initiatialize variables
         level_sum = 0
-        # TODO implement
-        # for each goal in the problem, determine the level cost, then add them together
+        counter=0
+        # for each goal in the problem, find it on lowest level
+        for g in self.problem.goal:
+            #for state set on each level
+            for s_s in self.s_levels:
+                #for each state within the state set
+                for s in s_s:
+                    #convert state to literal for goal comparison
+                    if s.is_pos:
+                        literal=expr(s.symbol)
+                    else:
+                        literal=expr("~{}".format(s.symbol))
+                    #compare against goal, if found add cost to level_sum
+                    if g==literal:
+                            level_sum=+counter
+                counter=+1
+
         return level_sum
