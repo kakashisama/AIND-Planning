@@ -196,6 +196,15 @@ class AirCargoProblem(Problem):
         """
         # TODO implement (see Russell-Norvig Ed-3 10.2.3  or Russell-Norvig Ed-2 11.2)
         count = 0
+        goal_length=len(self.goal)
+        kb = PropKB()
+        kb.tell(decode_state(node.state, self.state_map).pos_sentence())
+        # Check which clauses have already been satisfied
+        for clause in self.goal:
+            if clause in kb.clauses:
+              count=+1
+        # Check how many clauses are remaining by subtraction from total clauses and clauses satisfied
+        count=goal_length-count
         return count
 
 
