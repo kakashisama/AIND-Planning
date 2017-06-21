@@ -400,6 +400,7 @@ class PlanningGraph():
         :return: bool
         """
 
+        #Confirm if node 2's effects interfere with node 1's effects
         if set(node_a2.action.effect_rem)&set(node_a1.action.effect_add):
             return True
         if set(node_a2.action.effect_add)&set(node_a1.action.effect_rem):
@@ -422,10 +423,12 @@ class PlanningGraph():
         :return: bool
         """
 
+        #Confirm if node 1's effects interfere with preconditions of node 2
         if set(node_a1.action.effect_add)&set(node_a2.action.precond_neg):
             return True
         if set(node_a1.action.effect_rem)&set(node_a2.action.precond_pos):
             return True
+        #Confirm if node 2's effects interfere with preconditions of node 1
         if set(node_a2.action.effect_add)&set(node_a1.action.precond_neg):
             return True
         if set(node_a2.action.effect_rem)&set(node_a1.action.precond_pos):
@@ -443,6 +446,7 @@ class PlanningGraph():
         :return: bool
         """
 
+        #Confirm if parents of both nodes are mutexes of each other
         for s in node_a1.parents:
             for sm in node_a2.parents:
                 if s.is_mutex(sm):
@@ -482,7 +486,11 @@ class PlanningGraph():
         :param node_s2: PgNode_s
         :return: bool
         """
-        # TODO test for negation between nodes
+
+        #Confirm that the symbol matches but positivity does not
+        if (node_s1.symbol==node_s2.symbol)&(node_s1.is_pos!=node_s2.is_pos):
+            return True
+
         return False
 
     def inconsistent_support_mutex(self, node_s1: PgNode_s, node_s2: PgNode_s):
@@ -501,7 +509,15 @@ class PlanningGraph():
         :param node_s2: PgNode_s
         :return: bool
         """
-        # TODO test for Inconsistent Support between nodes
+
+        # Check if same parent can lead to both literals
+        if not(set(node_s1.parents)&set(node_s2.parents)):
+            # if not then check if parents are mutex of each other
+            for a in node_s1.parents:
+                for am in node_s2.parents:
+                    if a.is_mutex(am):
+                        return True
+
         return False
 
     def h_levelsum(self) -> int:
